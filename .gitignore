@@ -1,8 +1,8 @@
 # Compiled class file
 *.class
 
-./bin/*
-./settings/*
- .project
- .classpath
+.bin/
+.settings/
+.project
+.classpath
  
