@@ -19,10 +19,10 @@ public class Problem {
 			}
 			
 			while((line = reader.readLine())!= null) {
-				if(line.split(" ").length == 3) {						
-					int id = Integer.parseInt(line.split(" ")[0]);
-					double x = Double.parseDouble(line.split(" ")[1]);
-					double y = Double.parseDouble(line.split(" ")[2]);
+				if(line.trim().split("\\s+").length == 3) {						
+					int id = Integer.parseInt(line.trim().split("\\s+")[0]);
+					double x = Double.parseDouble(line.trim().split("\\s+")[1]);
+					double y = Double.parseDouble(line.trim().split("\\s+")[2]);
 					if(id == 1) {
 						depot = new Location(id, x, y);
 					}else {

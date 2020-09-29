@@ -4,13 +4,15 @@ import java.util.Random;
 
 public class EA extends Observable implements Runnable{
 
-	String filename = "berlin52.tsp";// optimal 7544
+	//String filename = "berlin52.tsp";// optimal 7544
+//	String filename = "dsj1000.tsp";// optimal 18659688
+	String filename = "rat99.tsp";// optimal 1211
 	Problem problem = new Problem(filename);
 	static Random random = new Random();
 	ArrayList<Individual> population;
 	Individual best;
-	int popSize = 1000;
-	int tournamentSize;
+	int popSize = 100;
+	int tournamentSize = 2;
 	int maxGenerations = 1000000;		
 	int generation;
 	int pause = 0;//set to zero for max speed
@@ -34,7 +36,11 @@ public class EA extends Observable implements Runnable{
 			Individual parent1 = select();
 			Individual parent2 = select();
 			Individual child = crossover(parent1, parent2);
-			child = mutate(child);
+			if(random.nextBoolean()) {
+				child = mutate2Opt(child);
+			}else {
+				child = mutate(child);
+			}
 			child.evaluate();
 			replace(child);
 			best = getBest();
@@ -42,16 +48,34 @@ public class EA extends Observable implements Runnable{
 			setChanged();
 			notifyObservers(best);
 			//pause so can see the effect
-			try {
-				Thread.sleep(pause);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				Thread.sleep(pause);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 		
 	}
 	
+	private Individual mutate2Opt(Individual child) {
+		int cut1 = random.nextInt(child.chromosome.size() - 1);
+		int cut2 = cut1 + random.nextInt(child.chromosome.size() - cut1);
+		Individual individual = new Individual(problem);
+		int i = 0;
+		for(i = 0; i < cut1; i++) {
+			individual.chromosome.set(i, child.chromosome.get(i));
+		}
+		for(int k = cut2; k >= cut1; k--) {
+			individual.chromosome.set(i, child.chromosome.get(k));
+			i++;
+		}
+		for(i = cut2 + 1; i < individual.chromosome.size(); i++) {
+			individual.chromosome.set(i, child.chromosome.get(i));
+		}
+		return individual;
+	}
+
 	private void printStats(int generation) {
 		System.out.println(generation + "\t" + best.fitness);
 	}
@@ -86,6 +110,7 @@ public class EA extends Observable implements Runnable{
 
 	//swap two locations
 	private Individual mutate(Individual child) {	
+		
 		Location temp;
 		int idx1 = random.nextInt(child.chromosome.size());
 		int idx2 = random.nextInt(child.chromosome.size());
@@ -93,10 +118,11 @@ public class EA extends Observable implements Runnable{
 		temp = child.chromosome.get(idx1);
 		child.chromosome.set(idx1, child.chromosome.get(idx2));
 		child.chromosome.set(idx2, temp);
+		
 		return child;
 	}
 
-	//simple crossover. Probably not very good
+	//simple crossover. Probably not very good. Long winded with customer indices  
 	private Individual crossover(Individual parent1, Individual parent2) {
 		Individual child = new Individual();
 		child.depot = parent1.depot.copy();
