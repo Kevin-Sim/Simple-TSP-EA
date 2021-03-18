@@ -62,4 +62,19 @@ public class Individual {
 		return individual;
 	}
 	
+	public boolean contains(Location location) {
+		for(int i = 0; i < chromosome.size(); i++) {
+			if(chromosome.get(i) != null && location != null) {
+				try {
+					if(chromosome.get(i).idx == location.idx) {
+						return true;
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		return false;
+	}
 }

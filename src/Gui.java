@@ -14,15 +14,18 @@ public class Gui extends JFrame implements Observer{
 
 	private JPanel contentPane;
 	Individual individual = null;
-	private double zoom = 2;//0.4 for berlin 0.0004 for dsj1000 + add translate 200, 100
+	private double zoom = 0.1;//0.4 for berlin 0.0004 for dsj1000 + add translate 200, 100
 	private int generation;
 
 	/**
 	 * Create the frame.
+	 * @param i 
 	 */
-	public Gui() {
+	public Gui(int i) {
+		int y = (i / 5 ) * 200;
+		int x = i % 5 * 200;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(0, 0, 800, 600);
+		setBounds(x, y, 200, 200);
 		contentPane = new JPanel() {
 			
 
@@ -35,8 +38,8 @@ public class Gui extends JFrame implements Observer{
 				Graphics2D g2d = (Graphics2D)g;
 				g2d.drawString(generation + "    " + individual.fitness, 10, 10);
 				AffineTransform at = new AffineTransform();	            
-				at.translate(100, 50);
-				at.scale(zoom, zoom);		            
+				at.translate(0, 0);
+				at.scale(zoom, zoom);// i prefer WebEx than zoom		            
 	            g2d.setTransform(at);	            
 
 				g2d.drawLine((int)individual.depot.x, (int)individual.depot.y, (int)individual.chromosome.get(0).x, (int)individual.chromosome.get(0).y);
