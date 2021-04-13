@@ -14,7 +14,7 @@ public class Gui extends JFrame implements Observer{
 
 	private JPanel contentPane;
 	Individual individual = null;
-	private double zoom = 0.1;//0.4 for berlin 0.0004 for dsj1000 + add translate 200, 100
+	private double zoom = 0.1;//0.4 for berlin (with 1 gui) 0.0004 for dsj1000 + add translate 200, 100
 	private int generation;
 
 	/**
@@ -38,7 +38,7 @@ public class Gui extends JFrame implements Observer{
 				Graphics2D g2d = (Graphics2D)g;
 				g2d.drawString(generation + "    " + individual.fitness, 10, 10);
 				AffineTransform at = new AffineTransform();	            
-				at.translate(0, 0);
+				at.translate(10, 20);//0,0 for berlin
 				at.scale(zoom, zoom);// i prefer WebEx than zoom		            
 	            g2d.setTransform(at);	            
 

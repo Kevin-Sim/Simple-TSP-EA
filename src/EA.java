@@ -5,18 +5,18 @@ import java.util.Random;
 public class EA extends Observable implements Runnable {
 
 	private static final Object lock = new Object();
-//	String filename = "berlin52.tsp";// optimal 7544
-//	String filename = "dsj1000.tsp";// optimal 18659688
+	String filename = "berlin52.tsp";// optimal 7544
+//	String filename = "dsj1000.tsp";// optimal 18,659,688 or 1.8 E7 Concorde gets 18659
 //	String filename = "rat99.tsp";// optimal 1211
 //	String filename = "burma14.tsp";
-	String filename = "berlin52.tsp";// 7544
+//	String filename = "berlin52.tsp";// 7544
 	Problem problem = new Problem(filename);
 	static Random random = new Random();
 	ArrayList<Individual> population;
 	Individual best;
-	int popSize = 1000;
-	int tournamentSize = 2;
-	int maxGenerations = 1000;
+	int popSize = 500;
+	int tournamentSize = 5;
+	int maxGenerations = 5000;
 	int generation;
 	int pause = 0;// set to zero for max speed
 	double mutationRate = 0.5;
@@ -46,17 +46,22 @@ public class EA extends Observable implements Runnable {
 			if(generation % 100 == 0) {
 				System.out.println("do the hussle");
 				synchronized (lock) {
+					//same island or in loop different .... original was same island and popsize / 10
 					int idx = random.nextInt(islands.size());
-					for(int i = 0; i< popSize / 10; i++) {
-						pop2.add(islands.get(idx).population.get(random.nextInt(popSize)));
+					for(int i = 0; i < popSize / 100; i++) {
+//						int idx = random.nextInt(islands.size());
+						pop2.add(islands.get(idx).population.get(random.nextInt(popSize)).copy());
 					}
+					//add best original not
+					pop2.add(islands.get(idx).best.copy());
 //					for(EA ea : islands) {
 //						pop2.add(ea.population.get(random.nextInt(popSize)));
 //					}
 				}				
 			}
 			// elitism
-//			pop2.add(best.copy());
+			
+			pop2.add(best.copy());
 			while (pop2.size() < popSize) {
 				Individual parent1 = select();
 				Individual parent2 = select();
@@ -112,6 +117,7 @@ public class EA extends Observable implements Runnable {
 	}
 
 	private ArrayList<Individual> mutate2Opt(ArrayList<Individual> children) {
+		ArrayList<Individual> result = new ArrayList<>();
 		for (Individual child : children) {
 			int cut1 = random.nextInt(child.chromosome.size() - 1);
 			int cut2 = cut1 + random.nextInt(child.chromosome.size() - cut1);
@@ -127,8 +133,9 @@ public class EA extends Observable implements Runnable {
 			for (i = cut2 + 1; i < individual.chromosome.size(); i++) {
 				individual.chromosome.set(i, child.chromosome.get(i));
 			}
+			result.add(individual);
 		}
-		return children;
+		return result;
 	}
 
 	private void printStats(int generation) {
@@ -384,7 +391,7 @@ public class EA extends Observable implements Runnable {
 	public static void main(String[] args) {
 		
 		ArrayList<EA> islands = new ArrayList<>();
-		for(int i = 0; i < 25; i++) {
+		for(int i = 0; i < 20; i++) {
 			Gui gui = new Gui(i);
 			EA ea = new EA();
 			islands.add(ea);
