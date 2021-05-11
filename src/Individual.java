@@ -35,9 +35,10 @@ public class Individual {
 		fitness = distance;
 	}
 	
-	private double calcDistance(Location loc1, Location loc2) {
+	//nearest int after calc on floats
+	private int calcDistance(Location loc1, Location loc2) {
 		double euclideanDistance = Math.sqrt(Math.pow(loc1.x - loc2.x, 2) + Math.pow(loc1.y - loc2.y, 2));
-		return euclideanDistance;
+		return (int) Math.round(euclideanDistance);
 	}
 	
 	@Override

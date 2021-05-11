@@ -5,11 +5,11 @@ import java.util.Random;
 public class EA extends Observable implements Runnable {
 
 	private static final Object lock = new Object();
-	String filename = "berlin52.tsp";// optimal 7544
+//	String filename = "dj38.tsp";
 //	String filename = "dsj1000.tsp";// optimal 18,659,688 or 1.8 E7 Concorde gets 18659
 //	String filename = "rat99.tsp";// optimal 1211
 //	String filename = "burma14.tsp";
-//	String filename = "berlin52.tsp";// 7544
+	String filename = "berlin52.tsp";// 7542
 	Problem problem = new Problem(filename);
 	static Random random = new Random();
 	ArrayList<Individual> population;
@@ -52,8 +52,10 @@ public class EA extends Observable implements Runnable {
 //						int idx = random.nextInt(islands.size());
 						pop2.add(islands.get(idx).population.get(random.nextInt(popSize)).copy());
 					}
-					//add best original not
-					pop2.add(islands.get(idx).best.copy());
+					//add best 
+//					pop2.add(islands.get(idx).best.copy());
+					
+					//add 1 from each?
 //					for(EA ea : islands) {
 //						pop2.add(ea.population.get(random.nextInt(popSize)));
 //					}
@@ -149,7 +151,7 @@ public class EA extends Observable implements Runnable {
 				bestInPop = individual;
 			}
 		}
-		return bestInPop;
+		return bestInPop.copy();
 	}
 
 	private Individual getWorst() {
@@ -391,7 +393,7 @@ public class EA extends Observable implements Runnable {
 	public static void main(String[] args) {
 		
 		ArrayList<EA> islands = new ArrayList<>();
-		for(int i = 0; i < 20; i++) {
+		for(int i = 0; i < 25; i++) {
 			Gui gui = new Gui(i);
 			EA ea = new EA();
 			islands.add(ea);
