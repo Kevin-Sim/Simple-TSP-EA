@@ -14,9 +14,9 @@ public class EA extends Observable implements Runnable {
 	static Random random = new Random();
 	ArrayList<Individual> population;
 	Individual best;
-	int popSize = 500;
-	int tournamentSize = 5;
-	int maxGenerations = 5000;
+	int popSize = 40;
+	int tournamentSize = 2;
+	int maxGenerations = 50000;
 	int generation;
 	int pause = 0;// set to zero for max speed
 	double mutationRate = 0.5;
@@ -43,8 +43,8 @@ public class EA extends Observable implements Runnable {
 			
 			
 			ArrayList<Individual> pop2 = new ArrayList<>();
-			if(generation % 100 == 0) {
-				System.out.println("do the hussle");
+			if(generation % 10 == 0) {//100
+//				System.out.println("do the hussle " + islands.indexOf(this));
 				synchronized (lock) {
 					//same island or in loop different .... original was same island and popsize / 10
 					int idx = random.nextInt(islands.size());
@@ -103,7 +103,7 @@ public class EA extends Observable implements Runnable {
 			if (bestCandidate.fitness < best.fitness) {
 				best = bestCandidate;
 			}
-			printStats(generation);
+//			printStats(generation);
 			setChanged();
 			notifyObservers(bestCandidate);
 		}
@@ -173,6 +173,7 @@ public class EA extends Observable implements Runnable {
 
 	// swap two locations
 	private ArrayList<Individual> mutate(ArrayList<Individual> children) {
+		
 		for (Individual child : children) {
 			Location temp;
 			int idx1 = random.nextInt(child.chromosome.size());
@@ -393,16 +394,16 @@ public class EA extends Observable implements Runnable {
 	public static void main(String[] args) {
 		
 		ArrayList<EA> islands = new ArrayList<>();
-		for(int i = 0; i < 25; i++) {
+		for(int i = 0; i < 20; i++) {
 			Gui gui = new Gui(i);
 			EA ea = new EA();
 			islands.add(ea);
-			ea.addObserver(gui);
-			Thread t = new Thread(ea);
-			t.start();			
+			ea.addObserver(gui);			
 		}
 		for(EA ea : islands) {
 			ea.islands = islands;
+			Thread t = new Thread(ea);
+			t.start();		
 		}			
 	}
 
