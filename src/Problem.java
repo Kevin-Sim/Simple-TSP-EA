@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Problem {
+	String filename = "";
 	Location depot;
 	ArrayList<Location> customers;
 	
 	public Problem(String filename) {
 		customers = new ArrayList<>();
+		this.filename = filename;
 		String line;
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(new File(filename)));

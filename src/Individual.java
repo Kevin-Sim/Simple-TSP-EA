@@ -5,6 +5,7 @@ public class Individual {
 	Location depot;
 	ArrayList<Location> chromosome;
 	double fitness = -1;
+	static int dist[][];
 	
 	public Individual() {
 		
@@ -23,6 +24,7 @@ public class Individual {
 			int idx = EA.random.nextInt(chromoCopy.size());
 			chromosome.add(chromoCopy.remove(idx));
 		}
+		dist = new int[chromosome.size() + 1][chromosome.size() + 1];		
 		evaluate();
 	}
 	
@@ -37,8 +39,14 @@ public class Individual {
 	
 	//nearest int after calc on floats
 	private int calcDistance(Location loc1, Location loc2) {
+//		System.out.println(loc1.idx + "\t" + loc2.idx);
+		if(dist[loc1.idx - 1][loc2.idx - 1] != 0) {
+			return dist[loc1.idx - 1][loc2.idx - 1];
+		}
 		double euclideanDistance = Math.sqrt(Math.pow(loc1.x - loc2.x, 2) + Math.pow(loc1.y - loc2.y, 2));
-		return (int) Math.round(euclideanDistance);
+		dist[loc1.idx - 1][loc2.idx - 1] = (int) Math.round(euclideanDistance);
+		dist[loc2.idx - 1][loc1.idx - 1] = (int) Math.round(euclideanDistance);
+		return dist[loc1.idx - 1][loc2.idx - 1];
 	}
 	
 	@Override

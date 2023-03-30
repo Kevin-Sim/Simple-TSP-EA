@@ -9,7 +9,8 @@ public class EA extends Observable implements Runnable {
 //	String filename = "dsj1000.tsp";// optimal 18,659,688 or 1.8 E7 Concorde gets 18659
 //	String filename = "rat99.tsp";// optimal 1211
 //	String filename = "burma14.tsp";
-	String filename = "berlin52.tsp";// 7542
+	String filename = "berlin52.tsp";// 7542 zoom 0.1 no trans
+//	String filename = "d198.tsp";//	d198 : 15780 zoom 0.004 translate 10, 10
 	Problem problem = new Problem(filename);
 	static Random random = new Random();
 	ArrayList<Individual> population;
@@ -21,11 +22,14 @@ public class EA extends Observable implements Runnable {
 	int pause = 0;// set to zero for max speed
 	double mutationRate = 0.5;
 	private ArrayList<EA> islands;
+	private boolean running;
+	static Individual globalBest = null;
+	static Gui bestGui = null;
 
 	@Override
 	public void run() {
+		running = true;
 		population = new ArrayList<>();
-		
 
 		// initialise population. The Individual constructor generates a random
 		// permutation of customers (Locations)
@@ -37,32 +41,31 @@ public class EA extends Observable implements Runnable {
 		best = getBest();
 		generation = 0;
 
-		while (generation < maxGenerations) {
+		while (generation < maxGenerations && running) {
 			generation++;
-			
-			
-			
+
 			ArrayList<Individual> pop2 = new ArrayList<>();
-			if(generation % 10 == 0) {//100
+			if (generation % 500 == 0) {// 100
 //				System.out.println("do the hussle " + islands.indexOf(this));
 				synchronized (lock) {
-					//same island or in loop different .... original was same island and popsize / 10
-					int idx = random.nextInt(islands.size());
-					for(int i = 0; i < popSize / 100; i++) {
-//						int idx = random.nextInt(islands.size());
+					// same island or in loop different .... original was same island and popsize /
+					// 10
+//					int idx = random.nextInt(islands.size());
+					for (int i = 0; i < popSize / 20; i++) {
+						int idx = random.nextInt(islands.size());
 						pop2.add(islands.get(idx).population.get(random.nextInt(popSize)).copy());
 					}
-					//add best 
+					// add best
 //					pop2.add(islands.get(idx).best.copy());
-					
-					//add 1 from each?
+
+					// add 1 from each?
 //					for(EA ea : islands) {
 //						pop2.add(ea.population.get(random.nextInt(popSize)));
 //					}
-				}				
+				}
 			}
 			// elitism
-			
+
 			pop2.add(best.copy());
 			while (pop2.size() < popSize) {
 				Individual parent1 = select();
@@ -98,24 +101,46 @@ public class EA extends Observable implements Runnable {
 			}
 			synchronized (lock) {
 				population = pop2;
-			}
-			Individual bestCandidate = getBest();
-			if (bestCandidate.fitness < best.fitness) {
-				best = bestCandidate;
+
+				Individual bestCandidate = getBest();
+				if (bestCandidate.fitness < best.fitness) {
+					best = bestCandidate;
+					if (globalBest == null || best.fitness < globalBest.fitness) {
+						globalBest = best.copy();
+						System.out.print(islands.indexOf(this) + "\t");
+						printStats(generation);
+						notifyObservers(this);
+					}
+					if (problem.filename.equals("berlin52.tsp")) {
+						if (best.fitness == 7542) {
+							printStats(generation);
+							notifyObservers(this);
+							for(EA ea : islands) {
+								ea.stop();
+							}
+							
+						}
+					}
+				}
 			}
 //			printStats(generation);
 			setChanged();
-			notifyObservers(bestCandidate);
+			notifyObservers(best);
 		}
 		Individual theIslandBest = null;
-		for(EA ea : islands) {
-			if(theIslandBest == null || ea.best.fitness < theIslandBest.fitness) {
+		for (EA ea : islands) {
+			if (theIslandBest == null || ea.best.fitness < theIslandBest.fitness) {
 				theIslandBest = ea.best;
 			}
 		}
 		setChanged();
 		notifyObservers(best);
-		System.out.println(theIslandBest.fitness);
+//		System.out.println(theIslandBest.fitness);
+	}
+
+	private void stop() {
+		this.running = false;
+		
 	}
 
 	private ArrayList<Individual> mutate2Opt(ArrayList<Individual> children) {
@@ -173,7 +198,7 @@ public class EA extends Observable implements Runnable {
 
 	// swap two locations
 	private ArrayList<Individual> mutate(ArrayList<Individual> children) {
-		
+
 		for (Individual child : children) {
 			Location temp;
 			int idx1 = random.nextInt(child.chromosome.size());
@@ -392,19 +417,22 @@ public class EA extends Observable implements Runnable {
 	}
 
 	public static void main(String[] args) {
-		
+		bestGui = new Gui(9999);
 		ArrayList<EA> islands = new ArrayList<>();
-		for(int i = 0; i < 20; i++) {
+		for (int i = 0; i < 20; i++) {
 			Gui gui = new Gui(i);
 			EA ea = new EA();
 			islands.add(ea);
-			ea.addObserver(gui);			
+			ea.addObserver(gui);
+			ea.addObserver(bestGui);
 		}
-		for(EA ea : islands) {
+		for (EA ea : islands) {
 			ea.islands = islands;
 			Thread t = new Thread(ea);
-			t.start();		
-		}			
+			t.start();
+		}
+		
 	}
-
+	
+	
 }
