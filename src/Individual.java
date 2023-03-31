@@ -32,6 +32,7 @@ public class Individual {
 		double distance = calcDistance(depot, chromosome.get(0));
 		for(int i = 0; i < chromosome.size() - 1; i++) {
 			distance += calcDistance(chromosome.get(i), chromosome.get(i + 1));
+//			System.out.println(calcDistance(chromosome.get(i), chromosome.get(i + 1)));
 		}
 		distance += calcDistance(chromosome.get(chromosome.size() - 1), depot);
 		fitness = distance;

@@ -6,16 +6,16 @@ public class EA extends Observable implements Runnable {
 
 	private static final Object lock = new Object();
 //	String filename = "dj38.tsp";
-//	String filename = "dsj1000.tsp";// optimal 18,659,688 or 1.8 E7 Concorde gets 18659
+	String filename = "dsj1000.tsp";// optimal 18,659,688 or 1.8 E7 Concorde gets 18659
 //	String filename = "rat99.tsp";// optimal 1211
 //	String filename = "burma14.tsp";
-	String filename = "berlin52.tsp";// 7542 zoom 0.1 no trans
-//	String filename = "d198.tsp";//	d198 : 15780 zoom 0.004 translate 10, 10
+//	String filename = "berlin52.tsp";// 7542 zoom 0.1 no trans
+//	String filename = "berlin52.tsp";//	d198 : 15780 zoom 0.04 translate 10, 10
 	Problem problem = new Problem(filename);
-	static Random random = new Random();
+	public static Random random = new Random();
 	ArrayList<Individual> population;
 	Individual best;
-	int popSize = 40;
+	int popSize = 60;
 	int tournamentSize = 2;
 	int maxGenerations = 50000;
 	int generation;
@@ -31,6 +31,10 @@ public class EA extends Observable implements Runnable {
 		running = true;
 		population = new ArrayList<>();
 
+		if(random.nextDouble() < 0.1) {
+			population.add(LinKernighan.linKernighan(problem, true));
+		}
+		
 		// initialise population. The Individual constructor generates a random
 		// permutation of customers (Locations)
 		for (int i = 0; i < popSize; i++) {
@@ -51,7 +55,7 @@ public class EA extends Observable implements Runnable {
 					// same island or in loop different .... original was same island and popsize /
 					// 10
 //					int idx = random.nextInt(islands.size());
-					for (int i = 0; i < popSize / 20; i++) {
+					for (int i = 0; i < 1; i++) {
 						int idx = random.nextInt(islands.size());
 						pop2.add(islands.get(idx).population.get(random.nextInt(popSize)).copy());
 					}

@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 /**
  * This implementation assumes that the distance between each pair of cities is
  * represented in a 2D dist array, where dist[i][j] is the distance between
@@ -19,19 +21,33 @@ public class LinKernighan {
 	private static final double MAX_DIST = 1e9;
 
 	public static void main(String[] args) {
-		Problem p = new Problem("berlin52.tsp");
-		int[] tour = new int[53];
-		Individual ind = new Individual(p);		
-		tour[0] = 1;
-		tour[52] = 1;
-		for(int i = 1; i < 52; i++) {
-			tour[i] = ind.chromosome.get(i-1).idx;
-		}
-		System.out.println();
-
+		Problem p = new Problem("dsj1000.tsp");
+		Individual ind = linKernighan(p, false);		
+		Gui gui = new Gui(9999);
+		gui.individual = ind;		
+		System.out.println(ind.fitness + "\t" + ind);				 
 	}
 
-	public static double linKernighan(int[] tour, double[][] dist) {
+	private static int calcDistance(Problem p, int idx1, int idx2) {
+//		System.out.println(loc1.idx + "\t" + loc2.idx);	
+		Location loc1 = null;
+		Location loc2 = null;
+		if (idx1 == 0 || idx1 == p.customers.size() + 1) {
+			loc1 = p.depot;
+		} else {
+			loc1 = p.customers.get(idx1 - 1);
+		}
+		if (idx2 == 0 || idx2 == p.customers.size() + 1) {
+			loc2 = p.depot;
+		} else {
+			loc2 = p.customers.get(idx2 - 1);
+		}
+//	
+		double euclideanDistance = Math.sqrt(Math.pow(loc1.x - loc2.x, 2) + Math.pow(loc1.y - loc2.y, 2));
+		return (int)Math.round(euclideanDistance);		
+	}
+
+	public static Individual linKernighan(int[] tour, double[][] dist, Problem p, Boolean breakEarly) {
 		int n = tour.length;
 		int[] inx = new int[n];
 		for (int i = 0; i < n; i++) {
@@ -69,12 +85,28 @@ public class LinKernighan {
 						}
 					}
 				}
+				if(breakEarly && EA.random.nextDouble() < 0.01) {
+					improved = false;
+				}
 				if (improved)
 					break;
 			}
 		}
-
-		return bestDist;
+		ArrayList<Location> chromoCopy = new ArrayList<>();
+		Individual ind = new Individual(p);
+		for(int i = 1; i <= tour.length - 2; i++) {
+//			System.out.println(tour[i]);
+			int idx = tour[i] - 2;
+			Location l = p.customers.get(tour[i] - 2);
+			Location locCopy  = new Location(l.idx, l.x, l.y);
+			chromoCopy.add(locCopy);
+		}
+		ind.chromosome = chromoCopy;
+		
+		Individual.dist = new int[p.customers.size() + 1][p.customers.size() + 1];		
+		ind.evaluate();		
+	
+		return ind;
 	}
 
 	private static int[] reverse(int[] arr, int i, int j) {
@@ -90,9 +122,29 @@ public class LinKernighan {
 	private static double tourLength(int[] tour, double[][] dist) {
 		double length = 0;
 		for (int i = 0; i < tour.length - 1; i++) {
-			length += dist[tour[i]][tour[i + 1]];
+			length += dist[tour[i] - 1][tour[i + 1] - 1];
+//			System.out.println(dist[tour[i]][tour[i + 1]]);
 		}
 		length += dist[tour[tour.length - 1]][tour[0]];
 		return length;
+	}
+
+	public static Individual linKernighan(Problem p, boolean breakEarly) {
+		int[] tour = new int[p.customers.size() + 2];
+		Individual ind = new Individual(p);
+		tour[0] = 1;
+		tour[p.customers.size() + 1] = 1;
+		for (int i = 1; i < p.customers.size() + 1; i++) {
+			tour[i] = ind.chromosome.get(i - 1).idx;
+		}
+		double[][] dist = new double[p.customers.size() + 2][p.customers.size() + 2];
+		for (int i = 0; i < p.customers.size() + 2; i++) {
+			for (int j = 0; j < p.customers.size() + 2; j++) {
+				dist[i][j] = calcDistance(p, i, j);
+			}
+		}
+		
+		ind = linKernighan(tour, dist, p, breakEarly);
+		return ind;
 	}
 }
